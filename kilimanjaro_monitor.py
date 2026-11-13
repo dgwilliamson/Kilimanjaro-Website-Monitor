@@ -153,13 +153,19 @@ def send_email(subject: str, body: str) -> None:
 def send_push(title: str, body: str) -> None:
     if not NTFY_TOPIC:
         return
-    requests.post(
+    resp = requests.post(
         f"https://ntfy.sh/{NTFY_TOPIC}",
         data=body.encode("utf-8"),
-        headers={"Title": title.encode("utf-8"), "Click": URL, "Tags": "mountain"},
+        headers={
+            "Title": title.encode("utf-8"),
+            "Click": URL,
+            "Tags": "mountain",
+            "Priority": "high",
+        },
         timeout=30,
     )
-    print("Push notification sent.")
+    resp.raise_for_status()
+    print(f"Push notification accepted by ntfy (HTTP {resp.status_code}, id {resp.json().get('id')}).")
 
 
 def notify(subject: str, body: str) -> None:
